@@ -12,6 +12,19 @@
         <label for="search">News:</label>
         <input type="text" id="search" name="search">
         <input type="submit" value="Search">
-      </form>
+    </form>
+    
+    <div name="search-result">
+
+        {% for i in final %}
+        <ul>
+            <li><a href={{ link[i] }} > {{ headline[i] }}</a>
+                <p>{{disc[i]}}</p>
+        </ul><br>
+        {% endfor %}
+    
+    </div>
+        
+    
 </body>
 </html>

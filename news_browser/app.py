@@ -85,7 +85,7 @@ bm25_df = BM25_IDF_df(dataframe[:1000])
 #     bm25_df1 = BM25_IDF_df(dataframe[:i])  # a dataframe with BM25-idf weights
 #     bm25_df.append(bm25_df1, ignore_index = True)
     
-for i in range(1000, 5000, 1000):
+for i in range(1000, 1000, 1000):
     bm25_df1 = BM25_IDF_df(dataframe[:i])  # a dataframe with BM25-idf weights
     bm25_df.append(bm25_df1, ignore_index = True)
 
@@ -110,7 +110,15 @@ def home():
        for i in results[:10]:
          final.append(i[0])
        print(final)
-    return render_template("index.html")
+       headline = df.loc[final, 'headline']
+       link = df.loc[final, 'link']
+       disc = df.loc[final, 'short_description']
+    else:
+       link = []
+       headline =[]
+       final = []
+       disc = []
+    return render_template("index.html", link = link, headline= headline, final = final, disc = disc)
 
 
 @app.route("/results")
