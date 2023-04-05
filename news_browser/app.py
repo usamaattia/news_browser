@@ -24,18 +24,16 @@ df['combined'] = df[cols].apply(lambda row: '_'.join(row.values.astype(str)), ax
 words = set(nltk.corpus.words.words())
 
 def preprocess_text(text):
-    """ Apply any preprocessing methods"""
     str1 = " "
     text = text.lower()
     text = re.sub(r'[^\w\s]', '', text)
     text = " ".join(w for w in nltk.wordpunct_tokenize(text) \
          if w.lower() in words or not w.isalpha())
-#     stop_words = set(stopwords.words('english'))
-#     word_tokens = word_tokenize(text)
-#     filtered = [w for w in word_tokens if not w.lower() in stop_words]
-    
-#     com = str1.join(filtered)
-    return text
+    stop_words = set(stopwords.words('english'))
+    word_tokens = word_tokenize(text)
+    filtered = [w for w in word_tokens if not w.lower() in stop_words]
+    com = str1.join(filtered)
+    return com
 
 df["combined"] = df.combined.apply(preprocess_text)
 
@@ -105,11 +103,17 @@ def home():
     if request.method == "POST":
        # getting input with name = fname in HTML form
        final = []
-       query = request.form.get("search")
-       results = retrieve_ranking(query, bm25_df)
+       query1 = request.form.get("search")
+       query = preprocess_text(query1)
+       try:
+          results = retrieve_ranking(query, bm25_df)
+       except:
+          print("this query is not in out index")
+          return render_template("errorMessage.html", query = query1)
        for i in results[:10]:
          final.append(i[0])
        print(final)
+       
        headline = df.loc[final, 'headline']
        link = df.loc[final, 'link']
        disc = df.loc[final, 'short_description']

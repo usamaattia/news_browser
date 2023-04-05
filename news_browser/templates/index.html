@@ -16,7 +16,7 @@
     
     <div name="search-result">
 
-        {% for i in final %}
+        {% for i in final|reverse %}
         <ul>
             <li><a href={{ link[i] }} > {{ headline[i] }}</a>
                 <p>{{disc[i]}}</p>
