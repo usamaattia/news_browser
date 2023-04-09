@@ -7,9 +7,8 @@ in this project we assume that you have VS code and python3
 5- create a virtual environment bu the command "python3 -m venv venv"
 6- activate the virtual environment by the command ". venv/bin/activate" 
 7- install Flask by "pip install Flask"
-8- run "python3 bm25.py" to get yor index file
-9- to run the project run the command "flask run" or "python3 app.py"
-10- pip insatall rank_bm25
-11- pip install -U numpy scipy scikit-learn
-12- pip install nltk
+8- to run the project run the command "flask run" or "python3 app.py"
+9- pip insatall rank_bm25
+10- pip install -U numpy scipy scikit-learn
+11- pip install nltk
 # news_browser
