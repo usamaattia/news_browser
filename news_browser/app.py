@@ -94,7 +94,7 @@ def BM25_IDF_df(df):
 
 bm25_df_arr = []
     
-for i in range(0, 6000, 1000):
+for i in range(0, 4000, 1000):
     subset_df = dataframe.iloc[i:i+1000]
     bm25_df1 = BM25_IDF_df(subset_df)  # a dataframe with BM25-idf weights
     bm25_df_arr.append(bm25_df1)
