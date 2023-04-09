@@ -2,17 +2,16 @@ from flask import Flask, render_template, request
 import pandas as pd
 import re
 import numpy as np
-# import urllib.request
 import nltk
 from nltk.corpus import wordnet
 from sklearn.feature_extraction.text import CountVectorizer
-# from sklearn import preprocessing
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-# from bm25 import preprocess_text, df
+
+
+
 
 app = Flask(__name__)
-
 
 df = pd.read_json('News_Dataset.json', lines = True)
 df = df.drop_duplicates() 
@@ -33,8 +32,6 @@ def preprocess_text(text):
 
 cols = ['headline', 'short_description']
 df['combined'] = df[cols].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
-
-
 
 words = set(nltk.corpus.words.words())
 
@@ -69,27 +66,20 @@ def BM25_IDF_df(df):
   """
   This definition calculates BM25-IDF weights before hand as done last week
   """
-
   dfs = (df > 0).sum(axis=0)
   N = df.shape[0]
   idfs = -np.log(dfs / N)
-  
   k_1 = 1.2
   b = 0.8
   dls = df.sum(axis=1) 
   avgdl = np.mean(dls)
-
   numerator = np.array((k_1 + 1) * df)
   denominator = np.array(k_1 *((1 - b) + b * (dls / avgdl))).reshape(N,1) \
                          + np.array(df)
-
   BM25_tf = numerator / denominator
-
   idfs = np.array(idfs)
-
   BM25_score = BM25_tf * idfs
   return pd.DataFrame(BM25_score, columns=vocabulary)
-
 
 
 bm25_df_arr = []
@@ -101,8 +91,7 @@ for i in range(0, 4000, 1000):
 
 bm25_df = pd.concat(bm25_df_arr, ignore_index=True)
 
-
-
+#retrieve from the index data frame
 def retrieve_ranking(query, bm25_df):
   q_terms = query.split(' ')
   q_terms_only = bm25_df[q_terms]
@@ -112,7 +101,7 @@ def retrieve_ranking(query, bm25_df):
                 reverse=True)
 
 
-
+#apply query expansion
 def query_expansion(query):
     expanded_query = []
     for term in query.split():
@@ -126,9 +115,10 @@ def query_expansion(query):
             expanded_query.append(term)
     return ' '.join(expanded_query)
 
-
+#read indces fron csv file instead
 # bm25_df = pd.read_csv('BM25_data1.csv')
 
+#route to our page
 @app.route("/", methods =["GET", "POST"])
 def home():
     if request.method == "POST":
@@ -157,11 +147,6 @@ def home():
        final = []
        disc = []
     return render_template("index.html", link = link, headline= headline, final = final, disc = disc)
-
-
-@app.route("/results")
-def res():
-    return render_template("results.html")
 
 
 if __name__ == '__main__':
