@@ -2,14 +2,11 @@
 import pandas as pd
 import re
 import numpy as np
-import urllib.request
 import nltk
-
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn import preprocessing
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-# from bm25 import bm
+
 
 
 
