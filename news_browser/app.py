@@ -1,21 +1,36 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 import pandas as pd
 import re
 import numpy as np
-import urllib.request
+# import urllib.request
 import nltk
-
+from nltk.corpus import wordnet
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn import preprocessing
+# from sklearn import preprocessing
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-# from bm25 import bm
+# from bm25 import preprocess_text, df
 
 app = Flask(__name__)
 
 
 df = pd.read_json('News_Dataset.json', lines = True)
 df = df.drop_duplicates() 
+
+words = set(nltk.corpus.words.words())
+
+def preprocess_text(text):
+    str1 = " "
+    text = text.lower()
+    text = re.sub(r'[^\w\s]', '', text)
+    text = " ".join(w for w in nltk.wordpunct_tokenize(text) \
+         if w.lower() in words or not w.isalpha())
+    stop_words = set(stopwords.words('english'))
+    word_tokens = word_tokenize(text)
+    filtered = [w for w in word_tokens if not w.lower() in stop_words]
+    com = str1.join(filtered)
+    return com
+
 cols = ['headline', 'short_description']
 df['combined'] = df[cols].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
 
@@ -77,15 +92,8 @@ def BM25_IDF_df(df):
 
 
 
-bm25_df = BM25_IDF_df(dataframe[:1000])
+bm25_df = BM25_IDF_df(dataframe[:6000])
 
-# for i in range(1000, 209514, 1000):
-#     bm25_df1 = BM25_IDF_df(dataframe[:i])  # a dataframe with BM25-idf weights
-#     bm25_df.append(bm25_df1, ignore_index = True)
-    
-for i in range(1000, 1000, 1000):
-    bm25_df1 = BM25_IDF_df(dataframe[:i])  # a dataframe with BM25-idf weights
-    bm25_df.append(bm25_df1, ignore_index = True)
 
 
 def retrieve_ranking(query, bm25_df):
@@ -98,17 +106,36 @@ def retrieve_ranking(query, bm25_df):
 
 
 
+def query_expansion(query):
+    expanded_query = []
+    for term in query.split():
+        synonyms = []
+        for syn in wordnet.synsets(term):
+            for lemma in syn.lemmas():
+                synonyms.append(lemma.name())
+        if synonyms:
+            expanded_query.append(' '.join(set(synonyms)))
+        else:
+            expanded_query.append(term)
+    return ' '.join(expanded_query)
+
+
+# bm25_df = pd.read_csv('BM25_data1.csv')
+
 @app.route("/", methods =["GET", "POST"])
 def home():
     if request.method == "POST":
        # getting input with name = fname in HTML form
        final = []
        query1 = request.form.get("search")
+      #  query2 = query_expansion(query1)
+      #  print(query2)
        query = preprocess_text(query1)
+       print(query)
        try:
           results = retrieve_ranking(query, bm25_df)
        except:
-          print("this query is not in out index")
+          print("this query is not in our index")
           return render_template("errorMessage.html", query = query1)
        for i in results[:10]:
          final.append(i[0])
